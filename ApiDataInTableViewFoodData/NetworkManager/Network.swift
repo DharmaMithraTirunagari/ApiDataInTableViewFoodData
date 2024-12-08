@@ -11,6 +11,8 @@ protocol NetworkProtocol {
     func getData(from url: String,  closure: @escaping (FoodData?) -> Void)
 }
 
+//MARK: - Data Fetching
+
 class Network: @unchecked Sendable, NetworkProtocol {
     static let sharedInstance = Network()
     private init() { }
