@@ -10,19 +10,56 @@ import XCTest
 
 final class ApiDataInTableViewFoodDataTests: XCTestCase {
     
-    var objVC : ViewController?
+    var viewModel: FoodGroupViewModel!
+    var mockNetworkManager: NetworkManagerDebug!
     
     override func setUpWithError() throws {
-        objVC = ViewController()
+        super.setUp()
+        mockNetworkManager = NetworkManagerDebug.shared
+        viewModel = FoodGroupViewModel(networkManager: mockNetworkManager)
     }
     
     override func tearDownWithError() throws {
-        objVC = nil
+        viewModel = nil
+        mockNetworkManager = nil
     }
     
-    func testTotalFoodItems(){
-        XCTAssertEqual(objVC?.totalFoodItems(), 0)
+    func testGetDataFromServerSucess(){
+        viewModel.getDataFromServer(urlString: " ") {
+            XCTAssertFalse((self.viewModel?.arrFoodData.isEmpty) != nil)
+            XCTAssertEqual(self.viewModel?.arrFoodData.count, 2)
+            XCTAssertNotEqual(self.viewModel?.arrFoodData[0].name, "Breakfast")
+            XCTAssertEqual(self.viewModel?.arrFoodData[1].name, "Indian food")
+        }
     }
     
+    func testTotalFoodItems() {
+        viewModel.getDataFromServer(urlString: " ") {
+            let totalFoodItems = self.viewModel?.totalFoodItems()
+            XCTAssertEqual(totalFoodItems, 34)
+        }
+    }
     
+    func testGetFoodItem() {
+        viewModel.getDataFromServer(urlString: " ") {
+            let foodItem = self.viewModel?.getFoodItem(at: 0)
+            XCTAssertEqual(foodItem?.1?.name, "Margherita")
+        }
+    }
+    
+    func testGetFoodItemFromSecondGroup() {
+        viewModel.getDataFromServer(urlString: " ") {
+            let foodItem = self.viewModel?.getFoodItem(at: 18)
+            XCTAssertEqual(foodItem?.1?.name, "Sunomono")
+        }
+    }
+    
+    func testFoodItemOutOfRange() {
+        viewModel.getDataFromServer(urlString: " ") {
+            let foodItem = self.viewModel?.getFoodItem(at: 100)
+            XCTAssertNil(foodItem?.1?.name)
+        }
+    }
+    
+
 }
