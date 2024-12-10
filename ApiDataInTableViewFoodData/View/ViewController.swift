@@ -10,10 +10,10 @@ import UIKit
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     //MARK: - Properties
-    
+    var foodgroupViewModel =  FoodGroupViewModel()
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableView: UITableView!
-    var arrFoodData: [Food]? = []
+    
     
     //MARK: - View Controller's Life cycle Methods
     override func viewDidLoad() {
@@ -45,25 +45,7 @@ extension ViewController{
         tableView.reloadData()
     }
     
-    func totalFoodItems() -> Int {
-        arrFoodData?.reduce(0) { $0 + $1.food_items.count } ?? 0
-    }
     
-    func getFoodItem(at row: Int) -> (Food?,FoodItem?) {
-        var foodGroup1: Food?
-        var foodItem: FoodItem?
-        guard let arrFoodData = arrFoodData else { return (foodGroup1, foodItem) }
-        var rowIndex = row
-        for foodGroup in arrFoodData {
-            foodGroup1 = foodGroup
-            if rowIndex < foodGroup.food_items.count {
-                foodItem = foodGroup.food_items[rowIndex]
-                break
-            }
-            rowIndex -= foodGroup.food_items.count
-        }
-        return (foodGroup1,foodItem)
-    }
 }
 
 extension ViewController {
@@ -71,27 +53,25 @@ extension ViewController {
     //MARK: - API Method
     func getDataFromServer(){
         startAnimating()
-        Network.sharedInstance.getData(from: ServerConstants.serverURL) { [weak self] foodData in
-            DispatchQueue.main.async {
+        foodgroupViewModel.getDataFromServer(urlString: ServerConstants.serverURL, completion: {
+            DispatchQueue.main.async { [weak self] in
                 self?.stopAnimating()
-                print(foodData!)
-                self?.arrFoodData = foodData?.food_groups
                 self?.reloadTableView()
             }
-        }
+        })
     }
 }
 
 //MARK: - Table View Methods
 extension ViewController {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        totalFoodItems()
+        foodgroupViewModel.totalFoodItems()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FoodCell", for: indexPath) as! FoodCell
         
-        guard let fetchedFood = getFoodItem(at: indexPath.row) as? (Food?,FoodItem?), let foodGroup = fetchedFood.0, let foodItem = fetchedFood.1 else { return cell}
+        guard let fetchedFood = foodgroupViewModel.getFoodItem(at: indexPath.row) as? (Food?,FoodItem?), let foodGroup = fetchedFood.0, let foodItem = fetchedFood.1 else { return cell}
         
         cell.config(group: foodGroup, item: foodItem)
         return cell
