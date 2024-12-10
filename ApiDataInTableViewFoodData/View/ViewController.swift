@@ -10,7 +10,7 @@ import UIKit
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     //MARK: - Properties
-    var foodgroupViewModel =  FoodGroupViewModel()
+    var foodgroupViewModel : FoodGroupViewModel! 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableView: UITableView!
     
@@ -53,7 +53,7 @@ extension ViewController {
     //MARK: - API Method
     func getDataFromServer(){
         startAnimating()
-        foodgroupViewModel.getDataFromServer(urlString: ServerConstants.serverURL, completion: {
+        foodgroupViewModel?.getDataFromServer(urlString: ServerConstants.serverURL, completion: {
             DispatchQueue.main.async { [weak self] in
                 self?.stopAnimating()
                 self?.reloadTableView()
@@ -65,7 +65,7 @@ extension ViewController {
 //MARK: - Table View Methods
 extension ViewController {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        foodgroupViewModel.totalFoodItems()
+        foodgroupViewModel?.totalFoodItems() ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
